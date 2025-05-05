@@ -101,11 +101,16 @@ class GcpBatchRequestFactoryImpl()(implicit gcsTransferConfiguration: GcsTransfe
     // https://cloud.google.com/batch/docs/reference/rest/v1/projects.locations.jobs#Accelerator.FIELDS.driver_version
     val gpuAccelerators = accelerators.getOrElse(Accelerator.newBuilder.setCount(0).setType(""))
 
+    val bootDisk = Disk.newBuilder
+       .setType("pd-standard")
+       .build()
+
     val instancePolicy = InstancePolicy.newBuilder
       .setProvisioningModel(spotModel)
       .setMachineType(machineType)
       .addAllDisks(attachedDisks.asJava)
       .setMinCpuPlatform(cpuPlatform)
+      .setBootDisk(bootDisk)
       .buildPartial()
 
     // add GPUs if GPU count is greater than 1
