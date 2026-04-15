@@ -1241,13 +1241,11 @@ class GcpBatchAsyncBackendJobExecutionActor(override val standardParams: Standar
   // Guidance: Resubmit if the task has a known-transient failure type and has not yet cost the user money.
   private def isTransientFailure(failed: RunStatus.Failed): Boolean = {
     lazy val errorTypeIsTransient = List(
-      GcpBatchExitCode.VMPreemption,
       GcpBatchExitCode.VMRecreatedDuringExecution,
       GcpBatchExitCode.VMRebootedDuringExecution,
       GcpBatchExitCode.VMReportingTimeout
     ).contains(failed.errorCode)
-    lazy val taskStartedRunning = failed.eventList.exists(e => executionEventRunningMatcher.matches(e.name))
-    transientErrorRetryable && errorTypeIsTransient && !taskStartedRunning
+    transientErrorRetryable && errorTypeIsTransient
   }
 
   private def handleTransientErrorRetry(failed: RunStatus.Failed, returnCode: Option[Int]) =
